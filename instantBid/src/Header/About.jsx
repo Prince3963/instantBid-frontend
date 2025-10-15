@@ -18,6 +18,7 @@ function About() {
             <h3 className="text-xl font-semibold mb-2">🔒 Secure Payments</h3>
             <p className="text-gray-600">Safe transactions you can trust.</p>
           </div>
+          
           <div className="p-6 bg-white rounded-xl shadow hover:shadow-lg">
             <h3 className="text-xl font-semibold mb-2">⏱ Real-Time Updates</h3>
             <p className="text-gray-600">Stay updated with live auctions.</p>
