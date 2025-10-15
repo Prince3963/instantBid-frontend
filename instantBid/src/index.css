@@ -1,0 +1,10 @@
+/* @tailwind base;
+@tailwind components;
+@tailwind utilities; */
+
+/* You can still keep your custom styles if needed, but keep them minimal */
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
