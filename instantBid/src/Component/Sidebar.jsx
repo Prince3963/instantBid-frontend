@@ -33,7 +33,7 @@ const Sidebar = () => {
           </Link>
         </li>
         <li>
-          <Link to="#" className="flex items-center space-x-2 p-2 rounded hover:bg-blue-100">
+          <Link to="/Profile" className="flex items-center space-x-2 p-2 rounded hover:bg-blue-100">
             <FaUser /> <span>Profile</span>
           </Link>
           
