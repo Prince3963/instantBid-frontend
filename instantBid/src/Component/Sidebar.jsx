@@ -1,42 +1,73 @@
-// Sidebar.jsx me
-
 import { FaHome, FaGavel, FaWallet, FaBell, FaUser } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const Sidebar = () => {
+  const location = useLocation();
+
+  const isActive = (path) => location.pathname === path;
+
   return (
     <div className="h-full bg-white shadow w-64 p-6 space-y-4">
       <ul className="space-y-2">
         <li>
-          <Link to="/dashboard" className="flex items-center space-x-2 p-2 rounded hover:bg-blue-100 text-blue-600 font-semibold">
+          <Link
+            to="/dashboard"
+            className={`flex items-center space-x-2 p-2 rounded hover:bg-blue-600 hover:text-white font-semibold ${
+              isActive('/dashboard') ? 'bg-blue-600 text-white' : 'text-blue-600'
+            }`}
+          >
             <FaHome /> <span>Home</span>
           </Link>
         </li>
         <li>
-          <Link to="#" className="flex items-center space-x-2 p-2 rounded hover:bg-blue-100">
+          <Link
+            to="/my-bids"
+            className={`flex items-center space-x-2 p-2 rounded hover:bg-blue-600 hover:text-white ${
+              isActive('/my-bids') ? 'bg-blue-600 text-white' : ''
+            }`}
+          >
             <FaGavel /> <span>My Bids</span>
           </Link>
         </li>
         <li>
-          <Link to="/Auction" className="flex items-center space-x-2 p-2 rounded hover:bg-blue-100">
+          <Link
+            to="/Auction"
+            className={`flex items-center space-x-2 p-2 rounded hover:bg-blue-600 hover:text-white ${
+              isActive('/Auction') ? 'bg-blue-600 text-white' : ''
+            }`}
+          >
             <FaGavel /> <span>Auctions</span>
           </Link>
         </li>
         <li>
-          <Link to="#" className="flex items-center space-x-2 p-2 rounded hover:bg-blue-100">
+          <Link
+            to="/wallet"
+            className={`flex items-center space-x-2 p-2 rounded hover:bg-blue-600 hover:text-white ${
+              isActive('/wallet') ? 'bg-blue-600 text-white' : ''
+            }`}
+          >
             <FaWallet /> <span>Wallet</span>
           </Link>
         </li>
         <li>
-          <Link to="#" className="flex items-center space-x-2 p-2 rounded hover:bg-blue-100">
+          <Link
+            to="/notifications"
+            className={`flex items-center space-x-2 p-2 rounded hover:bg-blue-600 hover:text-white ${
+              isActive('/notifications') ? 'bg-blue-600 text-white' : ''
+            }`}
+          >
             <FaBell /> <span>Notifications</span>
           </Link>
         </li>
         <li>
-          <Link to="/Profile" className="flex items-center space-x-2 p-2 rounded hover:bg-blue-100">
+          <Link
+            to="/Profile"
+            className={`flex items-center space-x-2 p-2 rounded hover:bg-blue-600 hover:text-white ${
+              isActive('/Profile') ? 'bg-blue-600 text-white' : ''
+            }`}
+          >
             <FaUser /> <span>Profile</span>
           </Link>
-          
         </li>
       </ul>
     </div>

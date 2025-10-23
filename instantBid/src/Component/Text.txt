@@ -1,79 +1,160 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 
-const Profile = () => {
-  const [profileData, setProfileData] = useState(null);
-  const [loading, setLoading] = useState(true);
+function Auction() {
+  const [auctionItemName, setAuctionItemName] = useState('');
+  const [auctionStartTime, setAuctionStartTime] = useState('');
+  const [auctionEndTime, setAuctionEndTime] = useState('');
+  const [startingBid, setStartingBid] = useState('');
+  const [endingBid, setEndingBid] = useState('');
+  const [status, setStatus] = useState(true);
+  const [userId, setUserId] = useState(null); 
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
 
+  // ✅ Decode JWT token and get userId from it
   useEffect(() => {
-    const token = localStorage.getItem('jwtToken'); // Token check
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const base64Url = token.split('.')[1]; // middle part
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const payload = JSON.parse(atob(base64)); // decode base64
+        setUserId(payload.userId || payload.sub || payload.id); // adjust field name based on backend JWT
+      } catch (err) {
+        console.error("Invalid JWT:", err);
+      }
+    }
+  }, []);
 
-    if (!token) {
-      setError('No token found. Please log in.');
-      setLoading(false);
-      navigate('/login'); // Redirect to login if token is not found
+  const handlePostRequest = async () => {
+    if (!userId) {
+      setError('User ID not found in token!');
       return;
     }
 
-    const fetchProfileData = async () => {
-      try {
-        const response = await axios.get('https://localhost:7119/api/Users/GetUserById', {
-          headers: {
-            Authorization: `Bearer ${token}` // Sending token in Authorization header
-          }
-        });
+    setLoading(true);
 
-        // Logging the full response to debug
-        console.log("API Response:", response);
-
-        // Access profile data directly from response.data
-        if (response && response.data) {
-          setProfileData(response.data); // Store profile data
-        } else {
-          setError('No profile data found');
-        }
-
-        setLoading(false); // Set loading to false once data is fetched
-      } catch (err) {
-        console.error("API Call Error:", err); // Log error to console
-        setError('Failed to fetch profile data');
-        setLoading(false);
-      }
+    const auctionData = {
+      AuctionItemName: auctionItemName,
+      AuctionStartTime: auctionStartTime,
+      AuctionEndTime: auctionEndTime,
+      StartingBid: startingBid,
+      EndingBid: endingBid,
+      Status: status,
+      UserId: userId, // ✅ token se aaya hua
     };
 
-    fetchProfileData(); // Call the function to fetch profile data
-  }, [navigate]); // Empty dependency array to run only once when the component mounts
+    try {
+      const token = localStorage.getItem('token');
 
-  if (loading) {
-    return <div>Loading...</div>; // Show loading message while fetching
-  }
+      const response = await axios.post(
+        'https://localhost:7119/AddAuction',
+        auctionData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`, // ✅ token bhi bhejna mat bhoolna
+          },
+        }
+      );
 
-  if (error) {
-    return <div>{error}</div>; // Show error message if there is an issue
-  }
+      console.log(response.data);
+      setLoading(false);
+      setError(null);
+    } catch (err) {
+      setLoading(false);
+      setError(err.message);
+      console.error(err);
+    }
+  };
 
   return (
-    <div className="profile-container">
-      <h2 className="text-center text-3xl font-semibold">Profile</h2>
-      {profileData ? (
-        <div className="profile-details">
-          <p><strong>Name:</strong> {profileData.name}</p>
-          <p><strong>Email:</strong> {profileData.email}</p>
-          <p><strong>Date of Birth:</strong> {profileData.dateOfBirth}</p>
-          <p><strong>Address:</strong> {profileData.address}</p>
-          <p><strong>Account Balance:</strong> ${profileData.accountBalance}</p>
-          {profileData.profileImage && (
-            <img src={profileData.profileImage} alt="Profile" className="profile-image" />
-          )}
+    <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg mt-4 rounded-xl">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-semibold text-gray-800">Create Auction</h2>
+        <button
+          className={`bg-blue-600 text-white px-6 py-2 rounded-xl text-lg font-semibold transition-all duration-200 ${loading ? 'bg-gray-400' : 'hover:bg-blue-700'}`}
+          onClick={handlePostRequest}
+          disabled={loading}
+        >
+          {loading ? 'Loading...' : 'Create Auction'}
+        </button>
+      </div>
+
+      <div className="space-y-4">
+        <div>
+          <label htmlFor="auctionItemName" className="text-sm font-medium text-gray-600">Auction Item Name</label>
+          <input
+            id="auctionItemName"
+            type="text"
+            placeholder="Enter auction item name"
+            className="w-full p-3 mt-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600"
+            value={auctionItemName}
+            onChange={(e) => setAuctionItemName(e.target.value)}
+          />
         </div>
-      ) : (
-        <p>No profile data available</p> // Display if no data found
-      )}
+
+        <div>
+          <label htmlFor="auctionStartTime" className="text-sm font-medium text-gray-600">Auction Start Time</label>
+          <input
+            id="auctionStartTime"
+            type="datetime-local"
+            className="w-full p-3 mt-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600"
+            value={auctionStartTime}
+            onChange={(e) => setAuctionStartTime(e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="auctionEndTime" className="text-sm font-medium text-gray-600">Auction End Time</label>
+          <input
+            id="auctionEndTime"
+            type="datetime-local"
+            className="w-full p-3 mt-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600"
+            value={auctionEndTime}
+            onChange={(e) => setAuctionEndTime(e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="startingBid" className="text-sm font-medium text-gray-600">Starting Bid</label>
+          <input
+            id="startingBid"
+            type="number"
+            placeholder="Enter starting bid"
+            className="w-full p-3 mt-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600"
+            value={startingBid}
+            onChange={(e) => setStartingBid(e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="endingBid" className="text-sm font-medium text-gray-600">Ending Bid</label>
+          <input
+            id="endingBid"
+            type="number"
+            placeholder="Enter ending bid"
+            className="w-full p-3 mt-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-600"
+            value={endingBid}
+            onChange={(e) => setEndingBid(e.target.value)}
+          />
+        </div>
+
+        <div className="flex items-center mt-4">
+          <input
+            type="checkbox"
+            checked={status}
+            onChange={() => setStatus(!status)}
+            className="h-5 w-5 text-blue-600 rounded-full border-gray-300 focus:ring-2 focus:ring-blue-600"
+          />
+          <span className="ml-2 text-sm text-gray-600">Active Auction</span>
+        </div>
+      </div>
+
+      {error && <div className="mt-4 text-red-500 text-sm">{error}</div>}
     </div>
   );
-};
+}
 
-export default Profile;
+export default Auction;

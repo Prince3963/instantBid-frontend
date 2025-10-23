@@ -6,220 +6,192 @@ const Profile = () => {
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isEditing, setIsEditing] = useState(false); // State to toggle edit mode
+  const [isEditing, setIsEditing] = useState(false);
   const [editableData, setEditableData] = useState({});
+  const [selectedImage, setSelectedImage] = useState(null); // for file upload
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('jwtToken'); // Token check
-
+    const token = localStorage.getItem('jwtToken');
     if (!token) {
       setError('No token found. Please log in.');
       setLoading(false);
-      navigate('/login'); // Redirect to login if token is not found
+      navigate('/login');
       return;
     }
 
     const fetchProfileData = async () => {
       try {
         const response = await axios.get('https://localhost:7119/api/Users/GetUserById', {
-          headers: {
-            Authorization: `Bearer ${token}` // Sending token in Authorization header
-          }
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         if (response && response.data) {
-          setProfileData(response.data); // Store profile data
-          setEditableData(response.data); // Initial editable data
+          setProfileData(response.data);
+          setEditableData(response.data);
         } else {
           setError('No profile data found');
         }
-
-        setLoading(false); // Set loading to false once data is fetched
+        setLoading(false);
       } catch (err) {
-        console.error("API Call Error:", err);
+        console.error('API Call Error:', err);
         setError('Failed to fetch profile data');
         setLoading(false);
       }
     };
 
-    fetchProfileData(); // Call the function to fetch profile data
+    fetchProfileData();
   }, [navigate]);
-
-  // const handleEditToggle = () => {
-  //   setIsEditing(!isEditing); // Toggle edit mode
-  // };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setEditableData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    setEditableData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // const handleSaveChanges = async () => {
-  //   const token = localStorage.getItem('jwtToken');
-  //   const userId = profileData?.id;  // Extracting ID from profileData
-  //   if (!token || !userId) {
-  //     setError('No token or user ID found. Please log in.');
-  //     return;
-  //   }
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedImage(file);
+    }
+  };
 
-  //   // try {
-  //   //   // Send PATCH request to update the user profile with ID
-  //   //   const response = await axios.patch(`https://localhost:7119/api/Users/updateUserData/${userId}`, editableData, {
-  //   //     headers: {
-  //   //       Authorization: `Bearer ${token}`,
-  //   //     },
-  //   //   });
+  const toggleEdit = () => setIsEditing((prev) => !prev);
 
-  //   //   if (response.data) {
-  //   //     setProfileData(response.data); // Update profile data with saved changes
-  //   //     setIsEditing(false); // Exit edit mode
-  //   //     setError(null); // Reset error state
-  //   //   }
-  //   // } catch (err) {
-  //   //   setError('Failed to save changes');
-  //   // }
-  // };
+  const handleSave = async () => {
+    const token = localStorage.getItem('jwtToken');
+    if (!token) {
+      setError('No token found.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('name', editableData.name);
+    formData.append('email', editableData.email);
+    formData.append('address', editableData.address);
+    formData.append('accountBalance', editableData.accountBalance);
+    formData.append('dateOfBirth', editableData.dateOfBirth);
+
+    if (selectedImage) {
+      formData.append('profileImage', selectedImage);
+    }
+
+    try {
+      const response = await axios.patch('https://localhost:7119/api/Users/updateProfile', formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      console.log('Update Success:', response.data);
+      setProfileData(editableData);
+      setIsEditing(false);
+    } catch (err) {
+      console.error('Update Failed:', err);
+      setError('Failed to update profile');
+    }
+  };
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="text-xl font-medium text-gray-600">Loading...</div>
+      <div className="flex justify-center items-center h-screen bg-gray-50">
+        <div className="text-xl font-semibold text-gray-500">Loading...</div>
       </div>
-    ); // Show loading message while fetching
+    );
   }
 
   if (error) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="text-xl font-medium text-red-600">{error}</div>
+      <div className="flex justify-center items-center h-screen bg-gray-50">
+        <div className="text-xl font-semibold text-red-600">{error}</div>
       </div>
-    ); // Show error message if there is an issue
+    );
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
-      <h2 className="text-3xl font-semibold text-center text-gray-800 mb-6">Your Profile</h2>
-      
-      {profileData ? (
-        <div className="space-y-4">
-          {/* Profile image */}
-          <div className="flex justify-center">
+    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto bg-white shadow-2xl rounded-2xl overflow-hidden">
+        {/* Blue Header */}
+        <div className="bg-blue-600 py-12 text-center">
+          {/* Profile Photo */}
+          <div className="relative inline-block">
             {profileData.profileImage ? (
-              <img 
-                src={profileData.profileImage} 
-                alt="Profile" 
-                className="w-32 h-32 rounded-full object-cover shadow-md"
+              <img
+                className="w-32 h-32 rounded-full border-4 border-white object-cover"
+                src={profileData.profileImage}
+                alt="Profile"
               />
             ) : (
-              <div className="w-32 h-32 rounded-full bg-gray-300 flex items-center justify-center text-white text-2xl">
-                <span>{profileData.name?.charAt(0)}</span>
+              <div className="w-32 h-32 rounded-full bg-gray-300 flex items-center justify-center text-white text-4xl border-4 border-white">
+                {profileData.name?.charAt(0) || ''}
               </div>
             )}
           </div>
+          <h2 className="mt-4 text-2xl font-bold text-white">{profileData.name}</h2>
+          <p className="mt-1 text-blue-100">{profileData.email}</p>
+        </div>
 
-          {/* Profile details */}
-          <div className="text-gray-700">
-            <div className="flex justify-between">
-              <span className="font-semibold">Name:</span>
+        {/* Info Section */}
+        <div className="px-6 py-10 space-y-8">
+          {[
+            { label: 'Name', name: 'name', type: 'text' },
+            { label: 'Email', name: 'email', type: 'email' },
+            { label: 'Date of Birth', name: 'dateOfBirth', type: 'date' },
+            { label: 'Address', name: 'address', type: 'text' },
+            { label: 'Account Balance', name: 'accountBalance', type: 'number' },
+          ].map((field) => (
+            <div key={field.name}>
+              <label className="block text-gray-700 font-medium mb-2">{field.label}</label>
               {isEditing ? (
                 <input
-                  type="text"
-                  name="name"
-                  value={editableData.name}
+                  type={field.type}
+                  name={field.name}
+                  value={editableData[field.name] ?? ''}
                   onChange={handleInputChange}
-                  className="border p-2 rounded-md"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               ) : (
-                <span>{profileData.name}</span>
+                <div
+                  className={`px-4 py-3 bg-gray-100 rounded-lg text-gray-800 ${
+                    field.name === 'accountBalance' ? 'text-green-600 font-semibold' : ''
+                  }`}
+                >
+                  {field.name === 'accountBalance'
+                    ? `$${profileData[field.name]}`
+                    : profileData[field.name]}
+                </div>
               )}
             </div>
+          ))}
 
-            <div className="flex justify-between">
-              <span className="font-semibold">Email:</span>
-              {isEditing ? (
-                <input
-                  type="email"
-                  name="email"
-                  value={editableData.email}
-                  onChange={handleInputChange}
-                  className="border p-2 rounded-md"
-                />
-              ) : (
-                <span>{profileData.email}</span>
-              )}
+          {/* Profile Image Upload */}
+          {isEditing && (
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">Profile Image</label>
+              <input type="file" onChange={handleImageChange} />
             </div>
+          )}
 
-            <div className="flex justify-between">
-              <span className="font-semibold">Date of Birth:</span>
-              {isEditing ? (
-                <input
-                  type="date"
-                  name="dateOfBirth"
-                  value={editableData.dateOfBirth}
-                  onChange={handleInputChange}
-                  className="border p-2 rounded-md"
-                />
-              ) : (
-                <span>{profileData.dateOfBirth}</span>
-              )}
-            </div>
-
-            <div className="flex justify-between">
-              <span className="font-semibold">Address:</span>
-              {isEditing ? (
-                <input
-                  type="text"
-                  name="address"
-                  value={editableData.address}
-                  onChange={handleInputChange}
-                  className="border p-2 rounded-md"
-                />
-              ) : (
-                <span>{profileData.address}</span>
-              )}
-            </div>
-
-            <div className="flex justify-between">
-              <span className="font-semibold">Account Balance:</span>
-              {isEditing ? (
-                <input
-                  type="number"
-                  name="accountBalance"
-                  value={editableData.accountBalance}
-                  onChange={handleInputChange}
-                  className="border p-2 rounded-md"
-                />
-              ) : (
-                <span className="text-green-600">${profileData.accountBalance}</span>
-              )}
-            </div>
-          </div>
-
-          {/* Edit Button */}
-          {/* <div className="flex justify-center mt-4">
-            <button
-              onClick={handleEditToggle}
-              className="px-4 py-2 bg-blue-600 cursor-pointer text-white rounded-lg focus:outline-none hover:bg-blue-700"
-            >
-              {isEditing ? 'Cancel' : 'Edit Profile'}
-            </button>
-            {isEditing && (
+          {/* Buttons */}
+          <div className="flex justify-center">
+            {isEditing ? (
               <button
-                onClick={handleSaveChanges}
-                className="ml-4 px-4 py-2 bg-green-600 text-white rounded-lg focus:outline-none hover:bg-green-700"
+                onClick={handleSave}
+                className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transform hover:scale-105 transition duration-200"
               >
                 Save Changes
               </button>
+            ) : (
+              <button
+                onClick={toggleEdit}
+                className="px-8 py-3 bg-blue-600 cursor-pointer text-white font-semibold rounded-lg hover:bg-blue-700 transform hover:scale-105 transition duration-200"
+              >
+                Edit Profile
+              </button>
             )}
-          </div> */}
+          </div>
         </div>
-      ) : (
-        <p className="text-center text-gray-600">No profile data available</p>
-      )}
+      </div>
     </div>
   );
 };
