@@ -8,8 +8,9 @@ import Navbar from './Header/Navbar';
 import Home from './UserAuth/Home';
 import Sidebar from './Component/Sidebar';
 import Dashboard from './Component/Dashboard';
-import Auction from './Component/Auction';
 import Profile from './Component/Profile';
+import AuctionList from './Component/Auction/AuctionList';
+import AddAuction from './Component/Auction/AddAuction';
 
 // Yeh inner component hai jo BrowserRouter ke andar chalega
 function AppContent({ isLoggedIn, setIsLoggedIn }) {
@@ -36,8 +37,9 @@ function AppContent({ isLoggedIn, setIsLoggedIn }) {
             <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/register" element={<Registration setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path='/Auction' element={< Auction/>} />
+            <Route path='/Auction' element={< AddAuction/>} />
             <Route path='/Profile' element={< Profile/>} />
+            <Route path='/auctionList' element={< AuctionList/>} />
           </Routes>
         </div>
       </div>

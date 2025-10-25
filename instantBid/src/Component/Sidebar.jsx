@@ -13,7 +13,7 @@ const Sidebar = () => {
           <Link
             to="/dashboard"
             className={`flex items-center space-x-2 p-2 rounded hover:bg-blue-600 hover:text-white font-semibold ${
-              isActive('/dashboard') ? 'bg-blue-600 text-white' : 'text-blue-600'
+              isActive('/dashboard') ? 'bg-blue-600 text-white' : ''
             }`}
           >
             <FaHome /> <span>Home</span>
@@ -23,7 +23,7 @@ const Sidebar = () => {
           <Link
             to="/my-bids"
             className={`flex items-center space-x-2 p-2 rounded hover:bg-blue-600 hover:text-white ${
-              isActive('/my-bids') ? 'bg-blue-600 text-white' : ''
+              isActive('/myBids') ? 'bg-blue-600 text-white' : ''
             }`}
           >
             <FaGavel /> <span>My Bids</span>
@@ -41,9 +41,9 @@ const Sidebar = () => {
         </li>
         <li>
           <Link
-            to="/wallet"
+            to="/auctionList"
             className={`flex items-center space-x-2 p-2 rounded hover:bg-blue-600 hover:text-white ${
-              isActive('/wallet') ? 'bg-blue-600 text-white' : ''
+              isActive('/auctionList') ? 'bg-blue-600 text-white' : ''
             }`}
           >
             <FaWallet /> <span>Wallet</span>
