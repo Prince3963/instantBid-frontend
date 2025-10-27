@@ -11,6 +11,8 @@ import Dashboard from './Component/Dashboard';
 import Profile from './Component/Profile';
 import AuctionList from './Component/Auction/AuctionList';
 import AddAuction from './Component/Auction/AddAuction';
+import ViewAuctionDetails from './Component/Auction/ViewAuctionDetails';
+import AuctionLive from './Component/Auction/AuctionLive';
 
 // Yeh inner component hai jo BrowserRouter ke andar chalega
 function AppContent({ isLoggedIn, setIsLoggedIn }) {
@@ -22,7 +24,6 @@ function AppContent({ isLoggedIn, setIsLoggedIn }) {
 
   return (
     <div className="h-screen flex flex-col">
-      {/* Top Navbar always visible */}
       <Navbar />
 
       {/* Layout under navbar */}
@@ -37,9 +38,11 @@ function AppContent({ isLoggedIn, setIsLoggedIn }) {
             <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/register" element={<Registration setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path='/Auction' element={< AddAuction/>} />
-            <Route path='/Profile' element={< Profile/>} />
-            <Route path='/auctionList' element={< AuctionList/>} />
+            <Route path='/Auction' element={< AddAuction />} />
+            <Route path='/Profile' element={< Profile />} />
+            <Route path='/auctionList' element={< AuctionList />} />
+            <Route path='/viewDetails' element={<ViewAuctionDetails />} />
+            <Route path="/auction/:auctionId" element={<AuctionLive />} />
           </Routes>
         </div>
       </div>

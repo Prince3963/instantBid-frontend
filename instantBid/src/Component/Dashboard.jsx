@@ -3,7 +3,7 @@ import AuctionList from './Auction/AuctionList';
 
 const Dashboard = () => {
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="p-6 bg-gray-50 min-h-screen">
       {/* Search bar */}
       <div className="mb-6">
         <input
@@ -14,14 +14,12 @@ const Dashboard = () => {
       </div>
 
       {/* Dashboard Header */}
-      <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+      {/* <h1 className="text-3xl font-bold mb-6">Dashboard</h1> */}
+      <div>
+        <AuctionList />
+      </div>
+    </div>
 
-              
-              <div>
-                <AuctionList />
-              </div>
-            </div>
-          
   );
 };
 
