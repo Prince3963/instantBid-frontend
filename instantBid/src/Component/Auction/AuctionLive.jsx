@@ -1,93 +1,120 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import * as signalR from "@microsoft/signalr";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 const AuctionLive = () => {
-  const { auctionId } = useParams();
-  const navigate = useNavigate();
-  const [connection, setConnection] = useState(null);
-  const [currentBid, setCurrentBid] = useState(0);
-  const [bidAmount, setBidAmount] = useState("");
-  const [bids, setBids] = useState([]);
+    const { auctionId } = useParams();
+    const [connection, setConnection] = useState(null);
+    const [bidAmount, setBidAmount] = useState("");
+    const [bids, setBids] = useState([]);
+    const [status, setStatus] = useState("Connecting...");
+    const connectionRef = useRef(null);
 
-  useEffect(() => {
-    const connect = new signalR.HubConnectionBuilder()
-      .withUrl("https://localhost:7119/auctionHub") // Backend Hub URL
-      .configureLogging(signalR.LogLevel.Information)
-      .build();
+    useEffect(() => {
+        const startConnection = async () => {
+            try {
+                const token = localStorage.getItem("jwtToken");
+                if (!token) {
+                    console.error("❌ JWT not found in localStorage");
+                    return;
+                }
 
-    setConnection(connect);
-  }, []);
+                // ✅ Proper URL with token in query
+                const newConnection = new signalR.HubConnectionBuilder()
+                    .withUrl(`https://localhost:7119/auctionHub?access_token=${token}`, {
+                        transport:
+                            signalR.HttpTransportType.WebSockets |
+                            signalR.HttpTransportType.LongPolling,
+                        skipNegotiation: false,
+                    })
+                    .withAutomaticReconnect()
+                    .configureLogging(signalR.LogLevel.Information)
+                    .build();
 
-  useEffect(() => {
-    if (connection) {
-      connection
-        .start()
-        .then(() => {
-          console.log("Connected to auction hub ✅");
-          connection.invoke("JoinAuction", parseInt(auctionId));
+                connectionRef.current = newConnection;
 
-          connection.on("BidPlaced", (data) => {
-            console.log("BidPlaced received:", data);
-            setCurrentBid(data.amount);
-            setBids((prev) => [...prev, data]);
-          });
+                newConnection.on("BidPlaced", (user, amount) => {
+                    console.log("📩 BidPlaced received:", user, amount);
+                    setBids((prevBids) => [...prevBids, { user, amount }]);
+                });
 
-          connection.on("BidRejected", (msg) => {
-            alert(msg);
-          });
-        })
-        .catch((err) => console.error("Connection failed:", err));
-    }
-  }, [connection]);
+                await newConnection.start();
+                console.log("✅ Connected to Auction Hub");
+                setStatus("Connected ✅");
 
-  const handleBid = async () => {
-    if (connection && bidAmount) {
-      await connection.invoke("PlaceBid", parseInt(auctionId), parseFloat(bidAmount), "Prince"); // replace with logged in username
-      setBidAmount("");
-    }
-  };
+                // ✅ Join auction group
+                await newConnection.invoke("JoinAuction", parseInt(auctionId));
+                console.log("✅ Joined Auction:", auctionId);
 
-  return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
-      <div className="bg-white shadow-lg rounded-2xl p-6 w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-3">Auction Live #{auctionId}</h1>
-        <p className="text-lg mb-3">💰 Current Bid: ₹{currentBid}</p>
+                setConnection(newConnection);
+            } catch (error) {
+                console.error("❌ SignalR connection failed:", error);
+                setStatus("Connection failed ❌");
+            }
+        };
 
-        <div className="flex gap-2 mb-3">
-          <input
-            type="number"
-            value={bidAmount}
-            onChange={(e) => setBidAmount(e.target.value)}
-            placeholder="Enter your bid"
-            className="border px-2 py-1 rounded-lg flex-1"
-          />
-          <button
-            onClick={handleBid}
-            className="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700"
-          >
-            Place Bid
-          </button>
+        startConnection();
+
+        return () => {
+            if (connectionRef.current) {
+                connectionRef.current.stop();
+            }
+        };
+    }, [auctionId]);
+
+    const handleBid = async () => {
+        try {
+            const userId = localStorage.getItem("userId");
+            if (!connectionRef.current) {
+                console.error("❌ Connection not established yet");
+                return;
+            }
+
+            console.log("📤 Placing bid:", bidAmount, "for auction:", auctionId);
+            await connectionRef.current.invoke(
+                "PlaceBid",
+                parseInt(auctionId),
+                parseFloat(bidAmount),
+                userId
+            );
+
+            setBidAmount("");
+        } catch (error) {
+            console.error("❌ Error placing bid:", error);
+        }
+    };
+
+    return (
+        <div style={{ padding: "20px" }}>
+            <h2>🏆 Live Auction #{auctionId}</h2>
+            <p>Status: {status}</p>
+
+            <div>
+                <input
+                    type="number"
+                    placeholder="Enter your bid"
+                    value={bidAmount}
+                    onChange={(e) => setBidAmount(e.target.value)}
+                />
+                <button
+                    onClick={handleBid}
+                    className="bg-blue-700 cursor-pointer"
+                    disabled={!connection}
+                >
+                    Place Bid
+                </button>
+            </div>
+
+            <h3>📜 Bid History</h3>
+            <ul>
+                {bids.map((bid, index) => (
+                    <li key={index}>
+                        {bid.user}: ₹{bid.amount}
+                    </li>
+                ))}
+            </ul>
         </div>
-
-        <div className="bg-gray-100 p-3 rounded-lg h-40 overflow-y-auto">
-          <h3 className="font-semibold mb-2">Bid History</h3>
-          {bids.map((b, i) => (
-            <p key={i} className="text-sm">
-              🧑‍💼 {b.user} placed ₹{b.amount}
-            </p>
-          ))}
-        </div>
-
-        <button
-          onClick={() => navigate(-1)}
-          className="mt-4 bg-red-500 text-white px-4 py-1 rounded-md hover:bg-red-600"
-        >
-          Exit
-        </button>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default AuctionLive;
