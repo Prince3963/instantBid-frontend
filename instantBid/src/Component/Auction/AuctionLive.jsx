@@ -16,33 +16,35 @@ const AuctionLive = () => {
                 const token = localStorage.getItem("jwtToken");
                 if (!token) {
                     console.error("❌ JWT not found in localStorage");
+                    setStatus("No JWT token ❌");
                     return;
                 }
 
-                // ✅ Proper URL with token in query
+                // ✅ Correct SignalR setup
+                // import * as signalR from '@microsoft/signalr';
+
                 const newConnection = new signalR.HubConnectionBuilder()
-                    .withUrl(`https://localhost:7119/auctionHub?access_token=${token}`, {
-                        transport:
-                            signalR.HttpTransportType.WebSockets |
-                            signalR.HttpTransportType.LongPolling,
-                        skipNegotiation: false,
+                    .withUrl("https://localhost:7119/auctionHub", {
+                        accessTokenFactory: () => localStorage.getItem("token") // ya jahan JWT store hai
                     })
                     .withAutomaticReconnect()
-                    .configureLogging(signalR.LogLevel.Information)
                     .build();
+
 
                 connectionRef.current = newConnection;
 
+                // Listen for new bids
                 newConnection.on("BidPlaced", (user, amount) => {
                     console.log("📩 BidPlaced received:", user, amount);
                     setBids((prevBids) => [...prevBids, { user, amount }]);
                 });
 
+                // Start connection
                 await newConnection.start();
                 console.log("✅ Connected to Auction Hub");
                 setStatus("Connected ✅");
 
-                // ✅ Join auction group
+                // Join auction group
                 await newConnection.invoke("JoinAuction", parseInt(auctionId));
                 console.log("✅ Joined Auction:", auctionId);
 
