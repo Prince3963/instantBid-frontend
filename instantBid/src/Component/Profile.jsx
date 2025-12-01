@@ -3,12 +3,13 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
-  const [profileData, setProfileData] = useState(null);
+  const [profileData, setProfileData] = useState(null); 
+  const [editableData, setEditableData] = useState({}); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [editableData, setEditableData] = useState({});
-  const [selectedImage, setSelectedImage] = useState(null); // for file upload
+  const [selectedImage, setSelectedImage] = useState(null); 
+  const [previewImage, setPreviewImage] = useState(null); 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,7 +27,7 @@ const Profile = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        if (response && response.data) {
+        if (response?.data) {
           setProfileData(response.data);
           setEditableData(response.data);
         } else {
@@ -52,6 +53,7 @@ const Profile = () => {
     const file = e.target.files[0];
     if (file) {
       setSelectedImage(file);
+      setPreviewImage(URL.createObjectURL(file)); 
     }
   };
 
@@ -65,18 +67,18 @@ const Profile = () => {
     }
 
     const formData = new FormData();
-    formData.append('name', editableData.name);
-    formData.append('email', editableData.email);
-    formData.append('address', editableData.address);
-    formData.append('accountBalance', editableData.accountBalance);
-    formData.append('dateOfBirth', editableData.dateOfBirth);
+    formData.append("name", editableData.name);
+    formData.append("email", editableData.email);
+    formData.append("address", editableData.address);
+    formData.append("accountBalance", editableData.accountBalance);
+    formData.append("dateOfBirth", editableData.dateOfBirth);
 
     if (selectedImage) {
-      formData.append('profileImage', selectedImage);
+      formData.append("profileImage", selectedImage);
     }
 
     try {
-      const response = await axios.patch('https://localhost:7119/api/Users/updateProfile', formData, {
+      const response = await axios.patch(`https://localhost:7119/updateUserData/0`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
@@ -86,6 +88,8 @@ const Profile = () => {
       console.log('Update Success:', response.data);
       setProfileData(editableData);
       setIsEditing(false);
+      setPreviewImage(null);
+      setSelectedImage(null);
     } catch (err) {
       console.error('Update Failed:', err);
       setError('Failed to update profile');
@@ -111,29 +115,51 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto bg-white shadow-2xl rounded-2xl overflow-hidden">
-        {/* Blue Header */}
+
+        {/* Header */}
         <div className="bg-blue-600 py-12 text-center">
-          {/* Profile Photo */}
+
+          {/* Profile Image */}
           <div className="relative inline-block">
-            {profileData.profileImage ? (
+
+            {(previewImage || profileData?.profileImageRead) ? (
               <img
-                className="w-32 h-32 rounded-full border-4 border-white object-cover"
-                src={profileData.profileImage}
+                className="w-32 h-32 rounded-full border-4 border-white object-cover shadow-lg transition-all duration-300"
+                src={previewImage || profileData.profileImageRead}
                 alt="Profile"
               />
             ) : (
-              <div className="w-32 h-32 rounded-full bg-gray-300 flex items-center justify-center text-white text-4xl border-4 border-white">
-                {profileData.name?.charAt(0) || ''}
+              <div className="w-32 h-32 rounded-full bg-gray-300 flex items-center justify-center text-white text-4xl border-4 border-white shadow-md">
+                {profileData?.name?.charAt(0)}
               </div>
             )}
+
+            {/* Upload Button */}
+            {isEditing && (
+              <label 
+                htmlFor="fileInput"
+                className="absolute bottom-0 right-0 bg-white text-blue-600 border border-blue-600 px-3 py-1 text-xs rounded-full shadow-md cursor-pointer hover:bg-blue-600 hover:text-white transition-all duration-200"
+              >
+                Change
+              </label>
+            )}
+
+            <input
+              type="file"
+              id="fileInput"
+              className="hidden"
+              onChange={handleImageChange}
+            />
           </div>
-          <h2 className="mt-4 text-2xl font-bold text-white">{profileData.name}</h2>
-          <p className="mt-1 text-blue-100">{profileData.email}</p>
+
+          <h2 className="mt-4 text-2xl font-bold text-white">{profileData?.name}</h2>
+          <p className="mt-1 text-blue-100">{profileData?.email}</p>
         </div>
 
         {/* Info Section */}
         <div className="px-6 py-10 space-y-8">
-          {[
+
+          {[ 
             { label: 'Name', name: 'name', type: 'text' },
             { label: 'Email', name: 'email', type: 'email' },
             { label: 'Date of Birth', name: 'dateOfBirth', type: 'date' },
@@ -142,6 +168,7 @@ const Profile = () => {
           ].map((field) => (
             <div key={field.name}>
               <label className="block text-gray-700 font-medium mb-2">{field.label}</label>
+
               {isEditing ? (
                 <input
                   type={field.type}
@@ -164,14 +191,6 @@ const Profile = () => {
             </div>
           ))}
 
-          {/* Profile Image Upload */}
-          {isEditing && (
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">Profile Image</label>
-              <input type="file" onChange={handleImageChange} />
-            </div>
-          )}
-
           {/* Buttons */}
           <div className="flex justify-center">
             {isEditing ? (
@@ -190,6 +209,7 @@ const Profile = () => {
               </button>
             )}
           </div>
+
         </div>
       </div>
     </div>

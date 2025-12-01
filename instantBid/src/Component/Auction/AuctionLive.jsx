@@ -4,7 +4,6 @@ import { useParams } from "react-router-dom";
 
 const AuctionLive = () => {
     const { auctionId } = useParams();
-    const [connection, setConnection] = useState(null);
     const [bidAmount, setBidAmount] = useState("");
     const [bids, setBids] = useState([]);
     const [status, setStatus] = useState("Connecting...");
@@ -15,43 +14,37 @@ const AuctionLive = () => {
             try {
                 const token = localStorage.getItem("jwtToken");
                 if (!token) {
-                    console.error("❌ JWT not found in localStorage");
-                    setStatus("No JWT token ❌");
+                    console.error("JWT not found in localStorage");
+                    setStatus("No JWT token");
                     return;
                 }
 
-                // ✅ Correct SignalR setup
-                // import * as signalR from '@microsoft/signalr';
-
                 const newConnection = new signalR.HubConnectionBuilder()
                     .withUrl("https://localhost:7119/auctionHub", {
-                        accessTokenFactory: () => localStorage.getItem("token") // ya jahan JWT store hai
+                        accessTokenFactory: () => token,
+                        transport: signalR.HttpTransportType.WebSockets  // Force WebSocket transport
                     })
                     .withAutomaticReconnect()
                     .build();
 
-
                 connectionRef.current = newConnection;
 
                 // Listen for new bids
-                newConnection.on("BidPlaced", (user, amount) => {
-                    console.log("📩 BidPlaced received:", user, amount);
-                    setBids((prevBids) => [...prevBids, { user, amount }]);
+                newConnection.on("BidPlaced", (data) => {
+                    console.log("📩 BidPlaced received:", data);
+                    setBids((prevBids) => [...prevBids, data]);
                 });
 
-                // Start connection
                 await newConnection.start();
                 console.log("✅ Connected to Auction Hub");
                 setStatus("Connected ✅");
 
-                // Join auction group
                 await newConnection.invoke("JoinAuction", parseInt(auctionId));
                 console.log("✅ Joined Auction:", auctionId);
 
-                setConnection(newConnection);
             } catch (error) {
                 console.error("❌ SignalR connection failed:", error);
-                setStatus("Connection failed ❌");
+                setStatus("Connection failed ");
             }
         };
 
@@ -66,18 +59,15 @@ const AuctionLive = () => {
 
     const handleBid = async () => {
         try {
-            const userId = localStorage.getItem("userId");
             if (!connectionRef.current) {
                 console.error("❌ Connection not established yet");
                 return;
             }
 
-            console.log("📤 Placing bid:", bidAmount, "for auction:", auctionId);
             await connectionRef.current.invoke(
                 "PlaceBid",
                 parseInt(auctionId),
-                parseFloat(bidAmount),
-                userId
+                parseFloat(bidAmount)
             );
 
             setBidAmount("");
@@ -100,8 +90,7 @@ const AuctionLive = () => {
                 />
                 <button
                     onClick={handleBid}
-                    className="bg-blue-700 cursor-pointer"
-                    disabled={!connection}
+                    disabled={!connectionRef.current}
                 >
                     Place Bid
                 </button>
@@ -111,7 +100,7 @@ const AuctionLive = () => {
             <ul>
                 {bids.map((bid, index) => (
                     <li key={index}>
-                        {bid.user}: ₹{bid.amount}
+                        {bid.User}: ₹{bid.Amount}
                     </li>
                 ))}
             </ul>

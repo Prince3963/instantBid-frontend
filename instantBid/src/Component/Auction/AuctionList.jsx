@@ -13,8 +13,8 @@ const AuctionList = () => {
             try {
                 const res = await axios.get("https://localhost:7119/getAuctions");
 
-                console.log("✅ Full API Response:", res);
-                console.log("✅ Response Data:", res.data);
+                console.log("Full API Response:", res);
+                console.log("Response Data:", res.data);
 
                 // Extract clean list from .NET style response
                 const apiData = res.data?.data;
@@ -27,13 +27,13 @@ const AuctionList = () => {
                     auctionList = apiData.$values;
                 }
                 else {
-                    console.warn("⚠️ Unexpected data structure:", apiData);
+                    console.warn("Unexpected data structure:", apiData);
                 }
 
-                console.log("✅ Final Auctions List:", auctionList);
+                console.log("Final Auctions List:", auctionList);
                 setAuctions(auctionList);
             } catch (err) {
-                console.error("❌ Error fetching auctions:", err);
+                console.error("Error fetching auctions:", err);
                 setError("Failed to fetch auctions");
             } finally {
                 setLoading(false);
@@ -79,7 +79,7 @@ const AuctionList = () => {
                     {auctions.map((auction, index) => (
                         <div
                             key={index}
-                            className="bg-white shadow-lg rounded-2xl p-6 hover:shadow-2xl cursor-pointer transition-all duration-300"
+                            className="bg-white shadow-lg rounded-2xl p-6 hover:shadow-2xl  transition-all duration-300"
                         >
                             {auction.itemImageURL && (
                                 <img
@@ -139,7 +139,7 @@ const AuctionList = () => {
                                     onClick={() =>
                                         navigate(`/dashboard/${auction.auctionId}`)
                                     }
-                                    className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg transition"
+                                    className="bg-blue-600 hover:bg-blue-700 cursor-pointer text-white text-sm px-4 py-2 rounded-lg transition"
                                 >
                                     Place Bid
                                 </button>
