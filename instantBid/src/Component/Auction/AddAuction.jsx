@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { jwtDecode } from "jwt-decode";
+import jwtDecode from "jwt-decode";
 import axios from "axios";
 
 const AddAuction = () => {
@@ -95,6 +95,9 @@ const AddAuction = () => {
         startingBid: "",
         endingBid: "",
       });
+
+      // Auto hide popup after 2 seconds
+      setTimeout(() => setSuccess(false), 2000);
     } catch (err) {
       console.error(err);
       setError("Failed to add auction. Please try again.");
@@ -104,7 +107,7 @@ const AddAuction = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg mt-6 rounded-xl">
+    <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg mt-6 rounded-xl relative">
       <h2 className="text-2xl font-semibold text-gray-800 mb-6">Create Auction</h2>
 
       <form className="space-y-4" onSubmit={handleSubmit} autoComplete="off">
@@ -231,19 +234,10 @@ const AddAuction = () => {
         {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
       </form>
 
-      {/* Success Modal */}
+      {/* Small UI-friendly Success Popup */}
       {success && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-          <div className="bg-white p-6 rounded-xl shadow-lg w-80 text-center">
-            <h3 className="text-xl font-semibold text-green-600 mb-4">Auction Added!</h3>
-            <p className="text-gray-700 mb-4">Your auction has been created successfully.</p>
-            <button
-              onClick={() => setSuccess(false)}
-              className="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700"
-            >
-              Close
-            </button>
-          </div>
+        <div className="fixed bottom-6 right-6 bg-green-600 text-white px-5 py-3 rounded-lg shadow-lg animate-slide-in">
+          Auction Added Successfully!
         </div>
       )}
     </div>
