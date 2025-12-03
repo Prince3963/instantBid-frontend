@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
 
 const Registration = () => {
@@ -15,6 +16,8 @@ const Registration = () => {
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+
 
   const validateForm = () => {
     let tempErrors = {};
@@ -82,10 +85,11 @@ const Registration = () => {
         }
       );
 
-      console.log("✅ Registration success:", res.data);
+      console.log("Registration success:", res.data);
+      window.location.href = '/login'
       setSubmitted(true);
     } catch (error) {
-      console.error("❌ Error while registering:", error);
+      console.error("Error while registering:", error);
       alert("Registration failed. Check console.");
       setSubmitted(false);
     }
@@ -107,6 +111,8 @@ const Registration = () => {
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-5">
+
+          {/* Name */}
           <div>
             <label className="block font-medium text-gray-700">Full Name</label>
             <input
@@ -120,6 +126,7 @@ const Registration = () => {
             {errors.name && <p className="text-red-600 text-sm mt-1">{errors.name}</p>}
           </div>
 
+          {/* Email */}
           <div>
             <label className="block font-medium text-gray-700">Email</label>
             <input
@@ -132,20 +139,28 @@ const Registration = () => {
             />
             {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email}</p>}
           </div>
-
-          <div>
+          
+          {/* Password */}
+          <div className="relative">
             <label className="block font-medium text-gray-700">Password</label>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               name="password"
               placeholder="Enter your password"
               onChange={handleChange}
               value={formData.password}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400 pr-10"
             />
+            <span
+              className="absolute right-3 mt-6 transform -translate-y-1/2 text-gray-500 cursor-pointer"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <FaEye /> : <FaEyeSlash />}
+            </span>
             {errors.password && <p className="text-red-600 text-sm mt-1">{errors.password}</p>}
           </div>
 
+          {/* DOB */}
           <div>
             <label className="block font-medium text-gray-700">Date of Birth</label>
             <input
@@ -159,7 +174,9 @@ const Registration = () => {
               <p className="text-red-600 text-sm mt-1">{errors.dateOfBirth}</p>
             )}
           </div>
+          
 
+          {/* Address */}
           <div>
             <label className="block font-medium text-gray-700">Address</label>
             <input

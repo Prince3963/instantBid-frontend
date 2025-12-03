@@ -8,8 +8,8 @@ const Sidebar = () => {
 
   const handleLogout = () => {
     console.log('Logging out...');
-    // localStorage.removeItem('user');
-    // window.location.href = '/login';
+    localStorage.removeItem('jwtToken');
+    window.location.href = '/login';
   };
 
   return (
@@ -42,7 +42,7 @@ const Sidebar = () => {
             className={`flex items-center space-x-2 p-2 rounded hover:bg-blue-600 hover:text-white ${isActive('/Auction') ? 'bg-blue-600 text-white' : ''
               }`}
           >
-            <FaGavel /> <span>Auctions</span>
+            <FaGavel /> <span> Add Auction</span>
           </Link>
         </li>
         <li>

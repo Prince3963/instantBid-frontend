@@ -1,4 +1,3 @@
-// src/components/Login.js
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // ✅ new state
   const [responseMessage, setResponseMessage] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -22,11 +22,8 @@ const Login = () => {
     try {
       const response = await axios.post("https://localhost:7119/Login", formData);
 
-      // Token comes in response.data.data
       const token = response.data.data;
       const message = response.data.message;
-
-      console.log("Token:", token);
 
       if (token) {
         localStorage.setItem("jwtToken", token);
@@ -60,6 +57,7 @@ const Login = () => {
         </p>
 
         <form onSubmit={handleLogin} className="space-y-5">
+          {/* Email */}
           <div>
             <label className="block font-medium text-gray-700">Email</label>
             <input
@@ -73,10 +71,11 @@ const Login = () => {
             />
           </div>
 
+          {/* Password */}
           <div>
             <label className="block font-medium text-gray-700">Password</label>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"} // ✅ toggle type
               name="password"
               placeholder="Enter your password"
               value={password}
@@ -84,6 +83,19 @@ const Login = () => {
               className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
               required
             />
+
+            {/* Show Password Checkbox */}
+            <div className="mt-2">
+              <label className="flex items-center text-gray-600 text-sm cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="mr-2"
+                  checked={showPassword}
+                  onChange={() => setShowPassword(!showPassword)}
+                />
+                Show Password
+              </label>
+            </div>
           </div>
 
           <button

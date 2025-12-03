@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const AuctionList = () => {
+const AuctionList = ({searchTerms}) => {
     const [auctions, setAuctions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -10,38 +10,31 @@ const AuctionList = () => {
 
     useEffect(() => {
         const fetchAuctions = async () => {
-            try {
-                const res = await axios.get("https://localhost:7119/getAuctions");
+            setLoading(true);
 
-                console.log("Full API Response:", res);
-                console.log("Response Data:", res.data);
+            try{
+                let res;
 
-                // Extract clean list from .NET style response
+                if(searchTerms && searchTerms.trim() !== ""){
+                    res = await axios.get(`https://localhost:7119/search?auction=${searchTerms}`);
+                }else{
+                    res = await axios.get("https://localhost:7119/getAuctions");
+                }
+
                 const apiData = res.data?.data;
-                let auctionList = [];
-
-                if (Array.isArray(apiData)) {
-                    auctionList = apiData;
-                }
-                else if (Array.isArray(apiData?.$values)) {
-                    auctionList = apiData.$values;
-                }
-                else {
-                    console.warn("Unexpected data structure:", apiData);
-                }
-
-                console.log("Final Auctions List:", auctionList);
-                setAuctions(auctionList);
-            } catch (err) {
-                console.error("Error fetching auctions:", err);
+                const list = Array.isArray(apiData) ? apiData : apiData?.$values || [];
+                setAuctions(list);
+            }catch(err){
+                console.log(err);
                 setError("Failed to fetch auctions");
-            } finally {
+            }finally{
+                console.log("AUction fetched");
                 setLoading(false);
             }
-        };
+        }
 
         fetchAuctions();
-    }, []);
+    }, [searchTerms]);
 
 
     const formatDateTime = (value) => {
