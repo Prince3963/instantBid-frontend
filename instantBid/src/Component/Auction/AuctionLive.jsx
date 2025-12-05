@@ -22,7 +22,7 @@ const AuctionLive = () => {
                 const newConnection = new signalR.HubConnectionBuilder()
                     .withUrl("https://localhost:7119/auctionHub", {
                         accessTokenFactory: () => token,
-                        transport: signalR.HttpTransportType.WebSockets  // Force WebSocket transport
+                        // transport: signalR.HttpTransportType.WebSockets  // Force WebSocket transport
                     })
                     .withAutomaticReconnect()
                     .build();
@@ -96,14 +96,34 @@ const AuctionLive = () => {
                 </button>
             </div>
 
-            <h3>📜 Bid History</h3>
-            <ul>
-                {bids.map((bid, index) => (
-                    <li key={index}>
-                        {bid.User}: ₹{bid.Amount}
-                    </li>
-                ))}
-            </ul>
+            <div className="mt-5">
+    <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+        📜 <span>Bid History</span>
+    </h3>
+
+    {bids.length === 0 ? (
+        <p className="text-gray-500 text-sm">No bids yet...</p>
+    ) : (
+        <div className="space-y-3">
+            {bids.map((bid, index) => (
+                <div
+                    key={index}
+                    className="bg-white shadow-sm border rounded-lg p-3 flex items-center justify-between"
+                >
+                    <div>
+                        <p className="text-gray-800 text-lg font-semibold">
+                            ₹ {bid.amount}
+                        </p>
+                        <p className="text-gray-500 text-sm">
+                            👤 User: {bid.user}
+                        </p>
+                    </div>
+                </div>
+            ))}
+        </div>
+    )}
+</div>
+
         </div>
     );
 };
