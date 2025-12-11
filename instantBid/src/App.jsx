@@ -13,6 +13,7 @@ import AuctionList from './Component/Auction/AuctionList';
 import AddAuction from './Component/Auction/AddAuction';
 import ViewAuctionDetails from './Component/Auction/ViewAuctionDetails';
 import AuctionLive from './Component/Auction/AuctionLive';
+import Bid from './Component/Bid/Bid';
 
 // Yeh inner component hai jo BrowserRouter ke andar chalega
 function AppContent({ isLoggedIn, setIsLoggedIn }) {
@@ -43,6 +44,7 @@ function AppContent({ isLoggedIn, setIsLoggedIn }) {
             <Route path='/auctionList' element={< AuctionList />} />
             <Route path='/viewDetails' element={<ViewAuctionDetails />} />
             <Route path="/dashboard/:auctionId" element={<AuctionLive />} />
+            {/* <Route path= "/bids/:auctionId" element={<Bid />}/> */}
           </Routes>
         </div>
       </div>
