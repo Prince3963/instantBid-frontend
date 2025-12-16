@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { FaSearch } from "react-icons/fa";
 
 const MyBids = () => {
   const [bids, setBids] = useState([]);
   const [error, setError] = useState("");
+  const [searchTerms, setSearchTerms] = useState("");
 
   useEffect(() => {
     const fetchMyBids = async () => {
@@ -19,7 +21,7 @@ const MyBids = () => {
 
         const userId =
           decoded[
-          "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
           ] ||
           decoded.UserId ||
           decoded.userId;
@@ -56,21 +58,46 @@ const MyBids = () => {
     fetchMyBids();
   }, []);
 
+  // 🔍 FRONTEND SEARCH FILTER (NEW)
+  const filteredBids = bids.filter((bid) =>
+    bid.auctionItemName
+      ?.toLowerCase()
+      .includes(searchTerms.toLowerCase())
+  );
+
   return (
-    <div className="bg-white">
+    <div className="bg-white min-h-screen p-6">
 
+      {/* 🔍 SEARCH BAR (NEW) */}
+      <div className="mb-6 relative w-full max-w-[1200px] mx-auto">
+        <FaSearch className="absolute left-3 top-3 text-gray-500 text-lg" />
 
-      <div style={{ maxWidth: "1200px", margin: "auto" }} className="cursor-pointer ">
+        <input
+          type="text"
+          placeholder="Search your bids..."
+          value={searchTerms}
+          onChange={(e) => setSearchTerms(e.target.value)}
+          className="w-full pl-10 pr-4 py-2 border rounded-md shadow-sm 
+                     focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+        />
+      </div>
 
+      <div
+        style={{ maxWidth: "1200px", margin: "auto" }}
+        className="cursor-pointer"
+      >
         {error && <p style={{ color: "red" }}>{error}</p>}
-        {bids.length === 0 && !error && <p>No bids found</p>}
 
-        {bids.map((bid, index) => (
+        {filteredBids.length === 0 && !error && (
+          <p>No bids found</p>
+        )}
+
+        {filteredBids.map((bid, index) => (
           <div
             key={index}
             className="flex gap-4 items-center border border-gray-200 rounded-lg p-3 mb-4 
-               transition-all duration-300 cursor-pointer
-               hover:shadow-lg hover:-translate-y-1"
+                       transition-all duration-300 cursor-pointer
+                       hover:shadow-lg hover:-translate-y-1"
           >
             {/* IMAGE */}
             <img
@@ -105,7 +132,6 @@ const MyBids = () => {
           </div>
         ))}
       </div>
-
     </div>
   );
 };
