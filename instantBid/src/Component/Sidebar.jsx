@@ -51,8 +51,8 @@ const Sidebar = () => {
             </li>
             <li>
               <Link
-                to="/my-bids"
-                className={`flex items-center space-x-2 p-2 rounded hover:bg-blue-600 hover:text-white ${isActive('/my-bids') ? 'bg-blue-600 text-white' : ''}`}
+                to="/myBids"
+                className={`flex items-center space-x-2 p-2 rounded hover:bg-blue-600 hover:text-white ${isActive('/myBids') ? 'bg-blue-600 text-white' : ''}`}
               >
                 <FaGavel /> <span>My Bids</span>
               </Link>
@@ -66,12 +66,12 @@ const Sidebar = () => {
               </Link>
             </li>
             <li>
-              <Link
+              {/* <Link
                 to="/auctionList"
                 className={`flex items-center space-x-2 p-2 rounded hover:bg-blue-600 hover:text-white ${isActive('/auctionList') ? 'bg-blue-600 text-white' : ''}`}
               >
                 <FaWallet /> <span>Wallet</span>
-              </Link>
+              </Link> */}
             </li>
             <li>
               <Link
