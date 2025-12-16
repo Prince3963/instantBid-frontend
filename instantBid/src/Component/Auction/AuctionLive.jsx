@@ -116,7 +116,7 @@ const AuctionLive = () => {
                                     👤 User: {bid.name ?? bid.user}
                                 </p>
                                 <p className="text-gray-400 text-xs">
-                                    🕒 {bid.bidTime}
+                                    🕒 {bid.bidTime ?? bid.BidTime} 
                                 </p>
                             </div>
                         ))}

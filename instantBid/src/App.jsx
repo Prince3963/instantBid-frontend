@@ -14,6 +14,7 @@ import AddAuction from './Component/Auction/AddAuction';
 import ViewAuctionDetails from './Component/Auction/ViewAuctionDetails';
 import AuctionLive from './Component/Auction/AuctionLive';
 import Bid from './Component/Bid/Bid';
+import Admin from './Component/Admin/Admin';
 
 // Yeh inner component hai jo BrowserRouter ke andar chalega
 function AppContent({ isLoggedIn, setIsLoggedIn }) {
@@ -36,6 +37,7 @@ function AppContent({ isLoggedIn, setIsLoggedIn }) {
         <div className="flex-1 overflow-auto bg-gray-100">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path='/adminDashboard' element={<Admin />} />
             <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/register" element={<Registration setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/dashboard" element={<Dashboard />} />

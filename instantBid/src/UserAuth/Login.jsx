@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // ✅ new state
+  const [showPassword, setShowPassword] = useState(false);
   const [responseMessage, setResponseMessage] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -20,25 +20,30 @@ const Login = () => {
     formData.append("Password", password);
 
     try {
-      const response = await axios.post("https://localhost:7119/Login", formData);
+      const response = await axios.post(
+        "https://localhost:7119/Login",
+        formData
+      );
 
-      const token = response.data.data;
-      const message = response.data.message;
+      if (response.data?.status === true) {
+        const { token, role } = response.data.data;
 
-      if (token) {
         localStorage.setItem("jwtToken", token);
-        setResponseMessage("Login Successful: " + message);
-        navigate("/dashboard");
-      } else {
-        setError("Login failed: No token received.");
+        localStorage.setItem("role", role);
+
+        if (role === "Admin") {
+          navigate("/adminDashboard");
+        }
+        else if (role === "Bidder") {
+          navigate("/dashboard");
+        }
+        else {
+          // fallback
+          navigate("/dashboard");
+        }
       }
     } catch (err) {
-      console.error("Login error:", err);
-      if (err.response && err.response.data && err.response.data.message) {
-        setError(err.response.data.message);
-      } else {
-        setError("Login Failed. Please try again.");
-      }
+      setError("Login failed. Please try again.");
     }
   };
 
