@@ -29,18 +29,26 @@ const Sidebar = () => {
             </li>
             <li>
               <Link
+                to="/viewBids"
+                className={`flex items-center space-x-2 p-2 rounded hover:bg-blue-600 hover:text-white ${isActive('/viewBids') ? 'bg-blue-600 text-white' : ''}`}
+              >
+                <FaGavel /> <span>View All Bids</span>
+              </Link>
+            </li>
+            <li>
+            <li>
+              <Link
                 to="/manageAuction"
                 className={`flex items-center space-x-2 p-2 rounded hover:bg-blue-600 hover:text-white ${isActive('/manageAuction') ? 'bg-blue-600 text-white' : ''}`}
               >
                 <FaUsers /> <span>Manage Auction</span>
               </Link>
             </li>
-            <li>
               <Link
-                to="/viewBids"
-                className={`flex items-center space-x-2 p-2 rounded hover:bg-blue-600 hover:text-white ${isActive('/viewBids') ? 'bg-blue-600 text-white' : ''}`}
+                to="/Auction"
+                className={`flex items-center space-x-2 p-2 rounded hover:bg-blue-600 hover:text-white ${isActive('/Auction') ? 'bg-blue-600 text-white' : ''}`}
               >
-                <FaGavel /> <span>View All Bids</span>
+                <FaGavel /> <span>Add Auction</span>
               </Link>
             </li>
             {/* Add more Admin specific links here */}

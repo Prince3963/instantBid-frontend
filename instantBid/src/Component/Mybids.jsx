@@ -59,11 +59,16 @@ const MyBids = () => {
   }, []);
 
   // 🔍 FRONTEND SEARCH FILTER (NEW)
-  const filteredBids = bids.filter((bid) =>
+  const filteredBids = bids
+  .filter((bid) =>
     bid.auctionItemName
       ?.toLowerCase()
       .includes(searchTerms.toLowerCase())
+  )
+  .sort(
+    (a, b) => new Date(b.bidTime) - new Date(a.bidTime)
   );
+
 
   return (
     <div className="bg-white min-h-screen p-6">

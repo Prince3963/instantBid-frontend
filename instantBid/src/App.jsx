@@ -52,7 +52,7 @@ function AppContent({ isLoggedIn, setIsLoggedIn }) {
             <Route path='/auctionList' element={< AuctionList />} />
             <Route path='/viewDetails' element={<ViewAuctionDetails />} />
             <Route path="/dashboard/:auctionId" element={<AuctionLive />} />
-            {/* <Route path= "/bids/:auctionId" element={<Bid />}/> */}
+            <Route path= "/bids/:auctionId" element={<Bid />}/>
           </Routes>
         </div>
       </div>
